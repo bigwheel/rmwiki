@@ -1,4 +1,4 @@
-require "rmwiki/version"
+require 'rmwiki/version'
 
 module Rmwiki
   # Your code goes here...
