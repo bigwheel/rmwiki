@@ -1,5 +1,2 @@
-require 'rmwiki/version'
-
-module Rmwiki
-  # Your code goes here...
+class Rmwiki
 end
