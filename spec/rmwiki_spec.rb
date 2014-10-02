@@ -104,5 +104,24 @@ describe Rmwiki do
         @subject.rename('Parentless', 'Parentless', 'not_exist_page')
       }.to raise_error
     end
+
+    describe '#all_page_tree' do
+      subject { @subject.all_page_tree }
+
+      it '親のないページ一覧がroot下へ収まってる' do
+        expect(subject.map { |_, page| page.title }).
+          to eq(['A', 'Parentless', 'Space_b', 'Wiki'])
+      end
+
+      it 'Wikiページ下のページ一覧が正しくある' do
+        expect(subject['Wiki'].children.map { |_, page| page.title }).
+          to eq(['Parent', 'Space_a', 'Space_In', '日本語'])
+      end
+
+      it 'Parentページ下のページ一覧が正しくある' do
+        expect(subject['Wiki'].children['Parent'].children.map { |_, page| page.title }).
+          to eq(['C', 'Child'])
+      end
+    end
   end
 end

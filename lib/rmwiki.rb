@@ -44,6 +44,24 @@ class Rmwiki
     }
   end
 
+  def all_page_tree
+    def sub_page_tree all_pages, page_title
+      def all_pages.select_child_pages parent_title
+        self.select { |page| page.parent_title == parent_title }
+      end
+      pages = all_pages.select_child_pages(page_title).map { |page|
+        page.instance_variable_set(:@children, sub_page_tree(all_pages, page.title))
+        def page.children
+          @children
+        end
+        page
+      }
+      Hash[pages.map { |page| [page.title, page] }]
+    end
+
+    sub_page_tree(self.all_pages, nil)
+  end
+
   def page page_title
     response = @http_client.get(File.join(@wiki_root, URI::escape(page_title) + '.json'))
 
