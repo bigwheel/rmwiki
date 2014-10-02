@@ -71,8 +71,32 @@ describe Rmwiki do
 
     it 'スペースを含む名前へ変更しようとしてもアンダースコアで置換される' do
       renamed_name = @subject.rename 'A', 'Space Ga Aru'
-      @subject.rename renamed_name, 'A'
+      @subject.rename renamed_name, 'A' # 元に戻しておく
       expect(renamed_name).to eq('Space_Ga_Aru')
+    end
+
+    it '親のあるページを別の親へ移動できる' do
+      @subject.rename 'Child', 'Child', 'Wiki'
+
+      page = @subject.page('Child')
+      expect(page.parent_title).to eq('Wiki')
+
+      @subject.rename 'Child', 'Child', 'Parent' # 元に戻しておく
+    end
+
+    it '親のないページを別の親へ移動できる' do
+      @subject.rename 'Parentless', 'Parentless', 'Wiki'
+
+      page = @subject.page('Parentless')
+      expect(page.parent_title).to eq('Wiki')
+    end
+
+    # 上のテストの副作用はこっちで戻す
+    it '親のあるページを親なしへ移動できる' do
+      @subject.rename 'Parentless', 'Parentless', nil
+
+      page = @subject.page('Parentless')
+      expect(page.parent_title).to be_nil
     end
   end
 end

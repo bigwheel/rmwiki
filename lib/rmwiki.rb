@@ -60,7 +60,14 @@ class Rmwiki
 
   # スペースの入ったページ名などダメなページ名があるので
   # 返り値として移動後のページ名を返す
-  def rename before_title, after_title
+  def rename before_title, after_title, parent_title = :default
+    def get_page_title_id_map nokogiri_doc
+      page_id_and_anme = nokogiri_doc.css('#wiki_page_parent_id option').
+        map { |i| i.text =~ /(?:.*» )?(.+)/; [$1, i.attributes['value'].value.to_i] }.
+        select { |page_title, id| page_title }
+      Hash[page_id_and_anme]
+    end
+
     def get_default_parent_id nokogiri_doc
       elem = nokogiri_doc.css('#wiki_page_parent_id option[selected="selected"]').first
       if elem
@@ -73,12 +80,23 @@ class Rmwiki
     rename_form_url = File.join(@wiki_root, before_title, '/rename')
     doc = Nokogiri::HTML(@http_client.get_content(rename_form_url))
     authenticity_token = get_authenticity_token(doc)
+    parent_id = if parent_title == :default
+                  get_default_parent_id(doc)
+                elsif parent_title == nil
+                  ''
+                else
+                  page_title_to_id = get_page_title_id_map(doc)
+                  unless page_title_to_id.has_key? parent_title
+                    raise '指定された親ページが存在しません'
+                  end
+                  page_title_to_id[parent_title]
+                end
 
     res = @http_client.post(rename_form_url, {
       'authenticity_token'                 => authenticity_token,
       'wiki_page[title]'                   => after_title,
       'wiki_page[redirect_existing_links]' => 0,
-      'wiki_page[parent_id]'               => get_default_parent_id(doc)
+      'wiki_page[parent_id]'               => parent_id
     })
     check_status_code res, 302
     File.basename(res.header['Location'].first)
