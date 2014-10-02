@@ -81,6 +81,7 @@ class Rmwiki
       'wiki_page[parent_id]'               => get_default_parent_id(doc)
     })
     check_status_code res, 302
+    File.basename(res.header['Location'].first)
   end
 
   private

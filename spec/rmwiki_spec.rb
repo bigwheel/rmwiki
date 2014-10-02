@@ -68,5 +68,11 @@ describe Rmwiki do
 
       @subject.rename 'NextChild', 'Child' # 面倒なので元に戻しておく
     end
+
+    it 'スペースを含む名前へ変更しようとしてもアンダースコアで置換される' do
+      renamed_name = @subject.rename 'A', 'Space Ga Aru'
+      @subject.rename renamed_name, 'A'
+      expect(renamed_name).to eq('Space_Ga_Aru')
+    end
   end
 end
