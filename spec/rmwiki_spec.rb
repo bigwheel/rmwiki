@@ -98,5 +98,11 @@ describe Rmwiki do
       page = @subject.page('Parentless')
       expect(page.parent_title).to be_nil
     end
+
+    it '存在しない親ページを指定すると例外が出る' do
+      expect {
+        @subject.rename('Parentless', 'Parentless', 'not_exist_page')
+      }.to raise_error
+    end
   end
 end
