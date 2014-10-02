@@ -46,15 +46,28 @@ class Rmwiki
 
   def page page_title
     response = @http_client.get(File.join(@wiki_root, URI::escape(page_title) + '.json'))
-    check_status_code response
 
-    ExtendedWikiPage.new(JSON.parse(response.content)['wiki_page'])
+    if response.header.status_code == 200
+      ExtendedWikiPage.new(JSON.parse(response.content)['wiki_page'])
+    else
+      nil
+    end
   end
 
+  def exist? page_title
+    self.page(page_title) != nil
+  end
+
+  # スペースの入ったページ名などダメなページ名があるので
+  # 返り値として移動後のページ名を返す
   def rename before_title, after_title
     def get_default_parent_id nokogiri_doc
-      nokogiri_doc.css('#wiki_page_parent_id option[selected="selected"]').
-        first.attributes['value'].value.to_i
+      elem = nokogiri_doc.css('#wiki_page_parent_id option[selected="selected"]').first
+      if elem
+        elem.attributes['value'].value.to_i
+      else
+        ''
+      end
     end
 
     rename_form_url = File.join(@wiki_root, before_title, '/rename')
@@ -62,12 +75,12 @@ class Rmwiki
     authenticity_token = get_authenticity_token(doc)
 
     res = @http_client.post(rename_form_url, {
-      authenticity_token: authenticity_token,
-      'wiki_page[title]' => after_name,
+      'authenticity_token'                 => authenticity_token,
+      'wiki_page[title]'                   => after_title,
       'wiki_page[redirect_existing_links]' => 0,
-      'wiki_page[parent_id]' => get_default_parent_id(doc)
+      'wiki_page[parent_id]'               => get_default_parent_id(doc)
     })
-    check_status_code res
+    check_status_code res, 302
   end
 
   private
@@ -92,7 +105,7 @@ class Rmwiki
 
   def check_status_code response, status_code = 200
     unless response.header.status_code == status_code
-      raise 'ログインに失敗したっぽい' + response.to_s
+      raise '失敗したっぽい' + response.to_s
     end
   end
 
