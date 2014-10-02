@@ -105,8 +105,8 @@ describe Rmwiki do
       }.to raise_error
     end
 
-    describe '#all_page_tree' do
-      subject { @subject.all_page_tree }
+    describe '#tree' do
+      subject { @subject.tree }
 
       it '親のないページ一覧がroot下へ収まってる' do
         expect(subject.map { |_, page| page.title }).

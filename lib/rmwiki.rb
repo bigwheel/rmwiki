@@ -44,7 +44,7 @@ class Rmwiki
     }
   end
 
-  def all_page_tree
+  def tree
     def sub_page_tree all_pages, page_title
       def all_pages.select_child_pages parent_title
         self.select { |page| page.parent_title == parent_title }
