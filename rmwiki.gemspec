@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'rmwiki'
-  spec.version       = '0.0.1'
+  spec.version       = '0.0.2'
   spec.authors       = ['bigwheel']
   spec.email         = ['k.bigwheel+eng@gmail.com']
   spec.summary       = %q{redmine wiki manupilator}
